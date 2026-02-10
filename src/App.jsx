@@ -6,19 +6,6 @@ import {
 import { projectRegistry, projectComponents } from './projects';
 import HubHome from './components/HubHome';
 
-// Import public library projects via Vite alias — resolves to the public library's src/projects
-let publicProjectRegistry = [];
-let publicProjectComponents = {};
-try {
-  const publicLib = await import('@public-library/projects');
-  publicProjectRegistry = publicLib.projectRegistry || [];
-  publicProjectComponents = publicLib.projectComponents || {};
-} catch (e) {
-  // Public library not configured or not available — show local projects only
-}
-
-const hasPublicLibrary = publicProjectRegistry.length > 0;
-
 function ProjectIcon({ iconName, className }) {
   const icons = {
     Building2: (props) => (
@@ -142,6 +129,22 @@ export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [personalSearch, setPersonalSearch] = useState('');
   const [sharedSearch, setSharedSearch] = useState('');
+  const [publicProjectRegistry, setPublicProjectRegistry] = useState([]);
+  const [publicProjectComponents, setPublicProjectComponents] = useState({});
+
+  useEffect(() => {
+    const libPath = '@public-library/projects';
+    import(/* @vite-ignore */ libPath)
+      .then((mod) => {
+        setPublicProjectRegistry(mod.projectRegistry || []);
+        setPublicProjectComponents(mod.projectComponents || {});
+      })
+      .catch(() => {
+        // Public library not configured — local projects only
+      });
+  }, []);
+
+  const hasPublicLibrary = publicProjectRegistry.length > 0;
 
   const sortedProjects = [...projectRegistry].sort(
     (a, b) => new Date(b.createdAt) - new Date(a.createdAt)

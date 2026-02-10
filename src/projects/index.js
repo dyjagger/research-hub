@@ -31,10 +31,21 @@ export const projectRegistry = [
     accentColor: 'red',
     createdAt: '2026-02-10T22:23:00Z',
   },
+  {
+    slug: 'jeep-rubicon-overlanding',
+    title: 'Jeep Rubicon Overlanding Setup',
+    subtitle: 'Complete Tent Camping & RTT Comparison for Overlanding',
+    query: 'deep dive research into the best jeep rubicon tent camping setup for overlanding',
+    lens: 'product',
+    icon: 'Tent',
+    accentColor: 'emerald',
+    createdAt: '2026-02-10T22:45:00Z',
+  },
 ];
 
 export const projectComponents = {
   'satisfactory-optimized-builds': lazy(() => import('./satisfactory-optimized-builds/App')),
   'japan-dmc-luxury-travel': lazy(() => import('./japan-dmc-luxury-travel/App')),
   'bar-raptors-4p-guide': lazy(() => import('./bar-raptors-4p-guide/App')),
+  'jeep-rubicon-overlanding': lazy(() => import('./jeep-rubicon-overlanding/App')),
 };

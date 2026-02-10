@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  LayoutDashboard, Map, Ratio, FlaskConical, Zap, Gauge, BookOpen,
+  LayoutDashboard, Map, Ratio, FlaskConical, Zap, Gauge, BookOpen, ListOrdered,
 } from 'lucide-react';
 import Overview from './components/Overview';
 import ResourceMap from './components/ResourceMap';
@@ -8,6 +8,7 @@ import ProductionRatios from './components/ProductionRatios';
 import AlternateRecipes from './components/AlternateRecipes';
 import PowerGeneration from './components/PowerGeneration';
 import OverclockingAnalysis from './components/OverclockingAnalysis';
+import TierProgression from './components/TierProgression';
 import Sources from './components/Sources';
 
 const SECTIONS = [
@@ -17,6 +18,7 @@ const SECTIONS = [
   { id: 'recipes', label: 'Alternate Recipes', icon: FlaskConical, component: AlternateRecipes },
   { id: 'power', label: 'Power Generation', icon: Zap, component: PowerGeneration },
   { id: 'overclocking', label: 'Overclocking', icon: Gauge, component: OverclockingAnalysis },
+  { id: 'progression', label: 'Tier Guide', icon: ListOrdered, component: TierProgression },
   { id: 'sources', label: 'Sources', icon: BookOpen, component: Sources },
 ];
 
@@ -54,7 +56,7 @@ export default function App() {
         </nav>
         <div className="p-3 border-t border-gray-800 text-[10px] text-gray-600">
           <p>Satisfactory 1.0 · Build 365306+</p>
-          <p className="mt-0.5">Data: 12 sources · 459 nodes</p>
+          <p className="mt-0.5">Data: 12 sources · 459 nodes · 10 tiers</p>
         </div>
       </aside>
 

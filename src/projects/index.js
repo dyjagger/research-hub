@@ -41,6 +41,16 @@ export const projectRegistry = [
     accentColor: 'emerald',
     createdAt: '2026-02-10T22:45:00Z',
   },
+  {
+    slug: 'japan-vegan-gf-guide',
+    title: 'Japan Vegan & Gluten-Free Guide',
+    subtitle: 'Interactive Restaurant Map, Reviews & Food Safety for Dietary-Restricted Travelers',
+    query: 'deep dive research into vegan friendly restaurants in japan with interactive map, gluten free options, reviews, ratings',
+    lens: 'standard',
+    icon: 'Leaf',
+    accentColor: 'green',
+    createdAt: '2026-02-11T16:30:00Z',
+  },
 ];
 
 export const projectComponents = {
@@ -48,4 +58,5 @@ export const projectComponents = {
   'japan-dmc-luxury-travel': lazy(() => import('./japan-dmc-luxury-travel/App')),
   'bar-raptors-4p-guide': lazy(() => import('./bar-raptors-4p-guide/App')),
   'jeep-rubicon-overlanding': lazy(() => import('./jeep-rubicon-overlanding/App')),
+  'japan-vegan-gf-guide': lazy(() => import('./japan-vegan-gf-guide/App')),
 };

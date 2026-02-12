@@ -44,7 +44,7 @@ export default function App() {
           <h2 className="text-sm font-bold tracking-wide uppercase" style={{ color: ACCENT }}>
             Japan DMC Intel
           </h2>
-          <p className="text-[10px] text-gray-500 mt-0.5">Luxury Travel Specialist Guide</p>
+          <p className="text-[10px] text-gray-500 mt-0.5">Travel Specialist Guide — All Tiers</p>
         </div>
         <div className="flex-1 overflow-y-auto py-2">
           {sections.map((s) => {

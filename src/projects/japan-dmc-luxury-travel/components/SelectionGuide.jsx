@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Compass, Users, DollarSign, Target, ChevronDown, ChevronUp, CheckCircle2, Star } from 'lucide-react';
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip } from 'recharts';
-import { clientProfiles, dmcDirectory } from '../data/researchData';
+import { clientProfiles } from '../data/researchData';
+import { dmcDirectory } from '../data/dmcProfiles';
 import InsightCallout from './InsightCallout';
 
 const ACCENT = '#f43f5e';
@@ -25,14 +26,15 @@ const radarMetrics = ['Luxury Rating', 'Service Depth', 'Regional Coverage', 'La
 function getDMCRadar(dmcName) {
   const dmc = dmcDirectory.find(d => d.name === dmcName);
   if (!dmc) return null;
-  const regionScore = dmc.regions.includes('Nationwide') ? 5 : Math.min(5, Math.ceil(dmc.regions.length * 1.2));
+  const regionScore = dmc.regions.some(r => r.toLowerCase().includes('nationwide')) ? 5 : Math.min(5, Math.ceil(dmc.regions.length * 0.8));
   const langScore = Math.min(5, dmc.languages.length);
   const expScore = Math.min(5, Math.ceil(dmc.specializations.length / 1.5));
+  const reviewScore = dmc.reviews?.google ? Math.round(dmc.reviews.google) : 3;
   return {
     name: dmcName,
     data: [
       { metric: 'Luxury', value: dmc.luxuryRating },
-      { metric: 'Service', value: dmc.serviceDepth },
+      { metric: 'Reviews', value: reviewScore },
       { metric: 'Coverage', value: regionScore },
       { metric: 'Languages', value: langScore },
       { metric: 'Experiences', value: expScore },
@@ -42,12 +44,12 @@ function getDMCRadar(dmcName) {
 
 export default function SelectionGuide() {
   const [expandedProfile, setExpandedProfile] = useState(null);
-  const [selectedDMCs, setSelectedDMCs] = useState(['Motenas Japan', 'Boutique JTB (JTB GMT Luxury Division)']);
+  const [selectedDMCs, setSelectedDMCs] = useState(['Motenas Japan', 'JTB GMT (Sunrise Tours / Luxury Division)']);
 
   const topDMCNames = [
     'Motenas Japan', 'Beauty of Japan (BOJ)', 'Japan Royal Service', 'Toki Inc.',
-    'Boutique JTB (JTB GMT Luxury Division)', 'InsideJapan Tours', 'A Touch of Japan',
-    'B Japan Tours', 'Artisans of Leisure', 'All Japan Tours',
+    'JTB GMT (Sunrise Tours / Luxury Division)', 'InsideJapan Tours', 'Boutique Japan',
+    'B Japan Tours', 'Cycle Japan Tours', 'Custom Japan Tours',
   ];
 
   const radarData = selectedDMCs.map(name => getDMCRadar(name)).filter(Boolean);

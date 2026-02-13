@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 node_modules/
 dist/
 .DS_Store
 *.local
-=======
-config.json
->>>>>>> upstream/main

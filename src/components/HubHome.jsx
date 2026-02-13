@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import {
   FlaskConical, ArrowRight, Sparkles, Clock, Search, BarChart3,
   FileText, Database, Package, Timer, BookOpen, Zap, GraduationCap, Brain, Eye,
-  Library, Users,
+  GitCompareArrows, Check,
 } from 'lucide-react';
+import ProjectDetailFlyout from './ProjectDetailFlyout';
+import CompareView from './CompareView';
 
 const LENS_BADGES = {
   standard: { label: 'Research', bg: 'bg-blue-500/10', text: 'text-blue-400', border: 'border-blue-500/20' },
@@ -19,15 +21,6 @@ function LensBadge({ lens }) {
   return (
     <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border ${badge.bg} ${badge.text} ${badge.border}`}>
       {badge.label}
-    </span>
-  );
-}
-
-function CommunityBadge() {
-  return (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border bg-indigo-500/10 text-indigo-400 border-indigo-500/20">
-      <Users className="w-2.5 h-2.5" />
-      Community
     </span>
   );
 }
@@ -99,135 +92,24 @@ function AggregateStats({ projects }) {
   );
 }
 
-function ProjectCard({ project, onProjectClick, getAccent, formatDate, ProjectIcon, source = 'local' }) {
-  const accent = getAccent(project.accentColor);
-  const t = project.telemetry;
-  const isLibrary = source === 'library';
+export default function HubHome({ projects, onProjectClick, getAccent, formatDate, ProjectIcon }) {
+  const [detailProject, setDetailProject] = useState(null);
+  const [compareSelection, setCompareSelection] = useState([]);
+  const [showCompare, setShowCompare] = useState(false);
 
-  return (
-    <button
-      onClick={() => onProjectClick(project.slug, source)}
-      className="group relative text-left p-5 rounded-xl border border-gray-800/80 bg-gray-900/50 hover:bg-gray-800/50 hover:border-gray-700 transition-all duration-200 hover:shadow-lg hover:shadow-black/20"
-    >
-      {/* Accent top border */}
-      <div className={`absolute top-0 left-4 right-4 h-px ${accent.border} opacity-50 group-hover:opacity-100 transition-opacity`} />
+  const handleDetailClick = (e, project) => {
+    e.stopPropagation();
+    setDetailProject(project);
+  };
 
-      <div className="flex items-start gap-3.5">
-        <div className={`w-9 h-9 rounded-lg ${accent.bg} flex items-center justify-center flex-shrink-0 mt-0.5`}>
-          <ProjectIcon iconName={project.icon} className={`w-4.5 h-4.5 ${accent.text}`} />
-        </div>
-        <div className="min-w-0 flex-1">
-          <h3 className="font-semibold text-gray-100 text-sm leading-tight group-hover:text-white transition-colors truncate">
-            {project.title}
-          </h3>
-          <p className="text-xs text-gray-500 mt-1 line-clamp-1">
-            {project.subtitle}
-          </p>
-        </div>
-      </div>
+  const handleCompareToggle = (e, slug) => {
+    e.stopPropagation();
+    setCompareSelection(prev =>
+      prev.includes(slug) ? prev.filter(s => s !== slug) : [...prev, slug]
+    );
+  };
 
-      {/* Query preview */}
-      {project.query && (
-        <p className="text-[11px] text-gray-600 mt-3 line-clamp-2 leading-relaxed italic">
-          "{project.query}"
-        </p>
-      )}
-
-      {/* Telemetry: Hours saved + key stats */}
-      {t && (
-        <div className="mt-3 space-y-2">
-          {/* Hours saved highlight */}
-          {t.hoursSaved && (
-            <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-emerald-500/5 border border-emerald-500/10">
-              <Zap className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
-              <span className="text-[11px] font-semibold text-emerald-400">
-                {formatHours(t.hoursSaved.totalHoursSaved)} saved
-              </span>
-              <span className="text-[10px] text-emerald-600">
-                ({t.hoursSaved.equivalentLabel})
-              </span>
-            </div>
-          )}
-          {/* Readability + Bloom's + Consumption */}
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-            {t.contentAnalysis && (
-              <>
-                <TelemetryStat icon={GraduationCap} value={t.contentAnalysis.fleschKincaidLabel} label={`Flesch-Kincaid: Grade ${t.contentAnalysis.fleschKincaidGrade}`} />
-                <div className="flex items-center gap-1.5" title={`Bloom's Taxonomy: ${t.contentAnalysis.bloomsLabel} (${t.contentAnalysis.bloomsRange})`}>
-                  <Brain className={`w-3 h-3 flex-shrink-0 ${BLOOMS_COLORS[t.contentAnalysis.bloomsLevel] || 'text-gray-500'}`} />
-                  <span className={`text-[10px] ${BLOOMS_COLORS[t.contentAnalysis.bloomsLevel] || 'text-gray-500'}`}>{t.contentAnalysis.bloomsLabel}</span>
-                </div>
-              </>
-            )}
-            {t.consumptionTime && (
-              <TelemetryStat icon={Eye} value={t.consumptionTime.estimatedLabel} label="Estimated time to consume all content" />
-            )}
-          </div>
-          {/* Build stats */}
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-            <TelemetryStat icon={Timer} value={formatDuration(t.durationMinutes)} label="AI build time" />
-            <TelemetryStat icon={Search} value={t.searchesPerformed} label="Web searches" />
-            <TelemetryStat icon={BookOpen} value={t.sourcesCount} label="Sources cited" />
-            <TelemetryStat icon={BarChart3} value={t.chartsBuilt} label="Charts built" />
-            <TelemetryStat icon={FileText} value={`${t.sectionsBuilt}s`} label="Sections" />
-            {t.productsCompared && (
-              <TelemetryStat icon={Package} value={t.productsCompared} label="Products compared" />
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Footer */}
-      <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-800/50">
-        <div className="flex items-center gap-2">
-          <LensBadge lens={project.lens} />
-          {isLibrary && <CommunityBadge />}
-          <span className="text-[10px] text-gray-600">
-            {formatDate(project.createdAt)}
-          </span>
-          {t && (
-            <>
-              <span className="text-[10px] text-gray-700">·</span>
-              <span className="text-[10px] text-gray-600" title="Skill version">
-                v{t.skillVersion}
-              </span>
-              {t.includedSetup && (
-                <span className="inline-flex items-center px-1.5 py-0 rounded text-[9px] font-medium bg-indigo-500/10 text-indigo-400 border border-indigo-500/20" title="Hub was set up during this run">
-                  setup
-                </span>
-              )}
-              {t.model && (
-                <>
-                  <span className="text-[10px] text-gray-700">·</span>
-                  <span className="text-[10px] text-gray-600 truncate max-w-[80px]" title={`Model: ${t.model}`}>
-                    {t.model.split('/').pop().split('-').slice(0, 2).join('-')}
-                  </span>
-                </>
-              )}
-            </>
-          )}
-        </div>
-        <ArrowRight className="w-3.5 h-3.5 text-gray-600 group-hover:text-gray-400 group-hover:translate-x-0.5 transition-all flex-shrink-0" />
-      </div>
-    </button>
-  );
-}
-
-export default function HubHome({ projects, publicProjects = [], onProjectClick, getAccent, formatDate, ProjectIcon }) {
-  const [librarySearch, setLibrarySearch] = useState('');
-
-  const sortedPublicProjects = [...publicProjects].sort(
-    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-  );
-
-  const filteredPublicProjects = librarySearch
-    ? sortedPublicProjects.filter(
-        p =>
-          p.title.toLowerCase().includes(librarySearch.toLowerCase()) ||
-          p.subtitle.toLowerCase().includes(librarySearch.toLowerCase()) ||
-          (p.query && p.query.toLowerCase().includes(librarySearch.toLowerCase()))
-      )
-    : sortedPublicProjects;
+  const compareProjects = compareSelection.map(slug => projects.find(p => p.slug === slug)).filter(Boolean);
 
   return (
     <div className="min-h-full">
@@ -252,82 +134,196 @@ export default function HubHome({ projects, publicProjects = [], onProjectClick,
         </div>
       </div>
 
-      {/* My Research Section */}
+      {/* Project Grid */}
       <div className="max-w-6xl mx-auto px-6 py-8">
-        <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-indigo-400" />
-          My Research
-        </h2>
         {projects.length === 0 ? (
-          <div className="text-center py-12 border border-dashed border-gray-800 rounded-xl">
-            <FlaskConical className="w-10 h-10 text-gray-700 mx-auto mb-3" />
-            <h3 className="text-sm font-medium text-gray-400 mb-1">No personal research yet</h3>
-            <p className="text-xs text-gray-600 max-w-sm mx-auto">
+          <div className="text-center py-20">
+            <FlaskConical className="w-12 h-12 text-gray-700 mx-auto mb-4" />
+            <h2 className="text-lg font-medium text-gray-400 mb-2">No research projects yet</h2>
+            <p className="text-sm text-gray-600 max-w-md mx-auto">
               Start a new research project by asking your AI assistant to research any topic.
               It will appear here as an interactive dashboard.
             </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {projects.map((project) => (
-              <ProjectCard
-                key={project.slug}
-                project={project}
-                onProjectClick={onProjectClick}
-                getAccent={getAccent}
-                formatDate={formatDate}
-                ProjectIcon={ProjectIcon}
-                source="local"
-              />
-            ))}
+            {projects.map((project) => {
+              const accent = getAccent(project.accentColor);
+              const t = project.telemetry;
+              return (
+                <button
+                  key={project.slug}
+                  onClick={() => onProjectClick(project.slug)}
+                  className={`group relative text-left p-5 rounded-xl border transition-all duration-200 hover:shadow-lg hover:shadow-black/20 ${
+                    compareSelection.includes(project.slug)
+                      ? 'border-indigo-500/50 bg-indigo-500/5 hover:bg-indigo-500/10'
+                      : 'border-gray-800/80 bg-gray-900/50 hover:bg-gray-800/50 hover:border-gray-700'
+                  }`}
+                >
+                  {/* Compare checkbox */}
+                  <div
+                    className={`absolute top-3 left-3 z-10 transition-opacity ${
+                      compareSelection.includes(project.slug) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                    }`}
+                    onClick={(e) => handleCompareToggle(e, project.slug)}
+                  >
+                    <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors cursor-pointer ${
+                      compareSelection.includes(project.slug)
+                        ? 'bg-indigo-500 border-indigo-500'
+                        : 'border-gray-600 hover:border-indigo-400 bg-gray-800/80'
+                    }`}>
+                      {compareSelection.includes(project.slug) && <Check className="w-3 h-3 text-white" />}
+                    </div>
+                  </div>
+
+                  {/* Accent top border */}
+                  <div className={`absolute top-0 left-4 right-4 h-px ${accent.border} opacity-50 group-hover:opacity-100 transition-opacity`} />
+
+                  <div className="flex items-start gap-3.5">
+                    <div className={`w-9 h-9 rounded-lg ${accent.bg} flex items-center justify-center flex-shrink-0 mt-0.5`}>
+                      <ProjectIcon iconName={project.icon} className={`w-4.5 h-4.5 ${accent.text}`} />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-semibold text-gray-100 text-sm leading-tight group-hover:text-white transition-colors truncate">
+                        {project.title}
+                      </h3>
+                      <p className="text-xs text-gray-500 mt-1 line-clamp-1">
+                        {project.subtitle}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Query preview */}
+                  {project.query && (
+                    <p className="text-[11px] text-gray-600 mt-3 line-clamp-2 leading-relaxed italic">
+                      "{project.query}"
+                    </p>
+                  )}
+
+                  {/* Telemetry: Hours saved + key stats */}
+                  {t && (
+                    <div className="mt-3 space-y-2">
+                      {/* Hours saved highlight */}
+                      {t.hoursSaved && (
+                        <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-emerald-500/5 border border-emerald-500/10">
+                          <Zap className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                          <span className="text-[11px] font-semibold text-emerald-400">
+                            {formatHours(t.hoursSaved.totalHoursSaved)} saved
+                          </span>
+                          <span className="text-[10px] text-emerald-600">
+                            ({t.hoursSaved.equivalentLabel})
+                          </span>
+                        </div>
+                      )}
+                      {/* Readability + Bloom's + Consumption */}
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                        {t.contentAnalysis && (
+                          <>
+                            <TelemetryStat icon={GraduationCap} value={t.contentAnalysis.fleschKincaidLabel} label={`Flesch-Kincaid: Grade ${t.contentAnalysis.fleschKincaidGrade}`} />
+                            <div className="flex items-center gap-1.5" title={`Bloom's Taxonomy: ${t.contentAnalysis.bloomsLabel} (${t.contentAnalysis.bloomsRange})`}>
+                              <Brain className={`w-3 h-3 flex-shrink-0 ${BLOOMS_COLORS[t.contentAnalysis.bloomsLevel] || 'text-gray-500'}`} />
+                              <span className={`text-[10px] ${BLOOMS_COLORS[t.contentAnalysis.bloomsLevel] || 'text-gray-500'}`}>{t.contentAnalysis.bloomsLabel}</span>
+                            </div>
+                          </>
+                        )}
+                        {t.consumptionTime && (
+                          <TelemetryStat icon={Eye} value={t.consumptionTime.estimatedLabel} label="Estimated time to consume all content" />
+                        )}
+                      </div>
+                      {/* Build stats */}
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                        <TelemetryStat icon={Timer} value={formatDuration(t.durationMinutes)} label="AI build time" />
+                        <TelemetryStat icon={Search} value={t.searchesPerformed} label="Web searches" />
+                        <TelemetryStat icon={BookOpen} value={t.sourcesCount} label="Sources cited" />
+                        <TelemetryStat icon={BarChart3} value={t.chartsBuilt} label="Charts built" />
+                        <TelemetryStat icon={FileText} value={`${t.sectionsBuilt}s`} label="Sections" />
+                        {t.productsCompared && (
+                          <TelemetryStat icon={Package} value={t.productsCompared} label="Products compared" />
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Footer */}
+                  <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-800/50">
+                    <div className="flex items-center gap-2">
+                      <LensBadge lens={project.lens} />
+                      <span className="text-[10px] text-gray-600">
+                        {formatDate(project.createdAt)}
+                      </span>
+                      {t && (
+                        <>
+                          <span className="text-[10px] text-gray-700">·</span>
+                          <span className="text-[10px] text-gray-600" title="Skill version">
+                            v{t.skillVersion}
+                          </span>
+                          {t.includedSetup && (
+                            <span className="inline-flex items-center px-1.5 py-0 rounded text-[9px] font-medium bg-indigo-500/10 text-indigo-400 border border-indigo-500/20" title="Hub was set up during this run">
+                              setup
+                            </span>
+                          )}
+                          {t.model && (
+                            <>
+                              <span className="text-[10px] text-gray-700">·</span>
+                              <span className="text-[10px] text-gray-600 truncate max-w-[80px]" title={`Model: ${t.model}`}>
+                                {t.model.split('/').pop().split('-').slice(0, 2).join('-')}
+                              </span>
+                            </>
+                          )}
+                        </>
+                      )}
+                    </div>
+                    <div
+                      className="p-1.5 -m-1.5 rounded-lg hover:bg-indigo-500/10 transition-colors cursor-pointer"
+                      onClick={(e) => handleDetailClick(e, project)}
+                      title="View detailed telemetry"
+                    >
+                      <ArrowRight className="w-3.5 h-3.5 text-gray-600 group-hover:text-indigo-400 group-hover:translate-x-0.5 transition-all flex-shrink-0" />
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         )}
       </div>
 
-      {/* Public Library Section */}
-      {publicProjects.length > 0 && (
-        <div className="max-w-6xl mx-auto px-6 py-8 border-t border-gray-800/50">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-              <Library className="w-5 h-5 text-indigo-400" />
-              Public Library
-              <span className="text-xs font-normal text-gray-500 ml-1">
-                {publicProjects.length} community project{publicProjects.length !== 1 ? 's' : ''}
-              </span>
-            </h2>
-            <div className="relative w-56">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500" />
-              <input
-                type="text"
-                placeholder="Search library..."
-                value={librarySearch}
-                onChange={(e) => setLibrarySearch(e.target.value)}
-                className="w-full bg-gray-800/50 border border-gray-700/50 rounded-lg pl-8 pr-3 py-1.5 text-xs text-gray-300 placeholder-gray-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-colors"
-              />
-            </div>
-          </div>
-          <p className="text-xs text-gray-500 mb-5">
-            Community-contributed research dashboards. Browse and explore — read-only.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {filteredPublicProjects.map((project) => (
-              <ProjectCard
-                key={`lib-${project.slug}`}
-                project={project}
-                onProjectClick={onProjectClick}
-                getAccent={getAccent}
-                formatDate={formatDate}
-                ProjectIcon={ProjectIcon}
-                source="library"
-              />
-            ))}
-            {filteredPublicProjects.length === 0 && (
-              <div className="col-span-full text-center py-8 text-xs text-gray-600">
-                No library projects match your search
-              </div>
-            )}
-          </div>
+      {/* Floating compare button */}
+      {compareSelection.length >= 2 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-30 animate-fade-in">
+          <button
+            onClick={() => setShowCompare(true)}
+            className="flex items-center gap-2.5 px-5 py-3 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm shadow-xl shadow-indigo-500/30 transition-colors"
+          >
+            <GitCompareArrows className="w-4 h-4" />
+            Compare ({compareSelection.length})
+          </button>
+          <button
+            onClick={() => setCompareSelection([])}
+            className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700 transition-colors text-[10px]"
+            title="Clear selection"
+          >
+            ✕
+          </button>
         </div>
+      )}
+
+      {/* Detail flyout */}
+      {detailProject && (
+        <ProjectDetailFlyout
+          project={detailProject}
+          allProjects={projects}
+          onClose={() => setDetailProject(null)}
+        />
+      )}
+
+      {/* Compare view */}
+      {showCompare && compareProjects.length >= 2 && (
+        <CompareView
+          projects={compareProjects}
+          allProjects={projects}
+          onClose={() => setShowCompare(false)}
+        />
       )}
     </div>
   );

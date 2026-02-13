@@ -1,0 +1,87 @@
+{
+  "version": "2.0",
+  "created": "2026-02-10T21:26:00Z",
+  "port": 5180,
+  "gitRepo": "https://github.com/dyjagger/research-hub.git",
+  "libraries": [],
+  "library": {
+    "enabled": true,
+    "remote": "https://github.com/mrshaun13/research-hub.git",
+    "branch": "agent-contributions",
+    "gitUsername": "daniel"
+  },
+  "projects": [
+    {
+      "slug": "satisfactory-optimized-builds",
+      "title": "Satisfactory Optimized Builds",
+      "subtitle": "Deep Dive into Factory Optimization",
+      "query": "deep dive research into the most optimized satisfactory builds",
+      "lens": "standard",
+      "icon": "Factory",
+      "accentColor": "orange",
+      "visibility": "personal",
+      "createdAt": "2026-02-10T21:26:00Z",
+      "updatedAt": "2026-02-10T21:26:00Z"
+    },
+    {
+      "slug": "japan-dmc-luxury-travel",
+      "title": "Japan DMC & Luxury Travel Intelligence",
+      "subtitle": "Destination Management Companies for Japan Luxury Tourism",
+      "query": "deep dive research into Destination Management Companies (DMC) for Japan, Japan tourism, japan luxe tourism for a travel specialist agent",
+      "lens": "standard",
+      "icon": "Plane",
+      "accentColor": "rose",
+      "visibility": "personal",
+      "createdAt": "2026-02-10T22:23:00Z",
+      "updatedAt": "2026-02-10T22:23:00Z"
+    },
+    {
+      "slug": "bar-raptors-4p-guide",
+      "title": "BAR Raptors 4P Guide",
+      "subtitle": "Optimized 4-Player Team Build vs Raptors \u2014 Hardest Difficulty",
+      "query": "research beyond all reason, specifically for a 4 person player team going up against the AI raptors on the hardest difficulty setting, what is the optimized build for these four players to do",
+      "lens": "standard",
+      "icon": "Shield",
+      "accentColor": "red",
+      "visibility": "personal",
+      "createdAt": "2026-02-10T22:23:00Z",
+      "updatedAt": "2026-02-10T22:23:00Z"
+    },
+    {
+      "slug": "jeep-rubicon-overlanding",
+      "title": "Jeep Rubicon Overlanding Setup",
+      "subtitle": "Complete Tent Camping & RTT Comparison for Overlanding",
+      "query": "deep dive research into the best jeep rubicon tent camping setup for overlanding",
+      "lens": "product",
+      "icon": "Tent",
+      "accentColor": "emerald",
+      "visibility": "personal",
+      "createdAt": "2026-02-10T22:45:00Z",
+      "updatedAt": "2026-02-10T22:45:00Z"
+    },
+    {
+      "slug": "japan-vegan-gf-guide",
+      "title": "Japan Vegan & Gluten-Free Guide",
+      "subtitle": "Interactive Restaurant Map, Reviews & Food Safety for Dietary-Restricted Travelers",
+      "query": "deep dive research into vegan friendly restaurants in japan with interactive map, gluten free options, reviews, ratings",
+      "lens": "standard",
+      "icon": "Leaf",
+      "accentColor": "green",
+      "visibility": "personal",
+      "createdAt": "2026-02-11T16:30:00Z",
+      "updatedAt": "2026-02-11T16:30:00Z"
+    },
+    {
+      "slug": "japanese-learning-dashboard",
+      "title": "Japanese Learning Dashboard",
+      "subtitle": "Beginner to Advanced \u2014 Grammar, Vocab, Kana, Verbs & Interactive Translator",
+      "query": "build me a japanese learning dashboard that goes from beginner to advanced, grammar, vocab, hiragana, katakana, romaji, structured courses, verb reference, and a sentence translator",
+      "lens": "standard",
+      "icon": "GraduationCap",
+      "accentColor": "rose",
+      "visibility": "personal",
+      "createdAt": "2026-02-13T18:09:00Z",
+      "updatedAt": "2026-02-13T18:09:00Z"
+    }
+  ]
+}

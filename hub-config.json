@@ -82,6 +82,18 @@
       "visibility": "personal",
       "createdAt": "2026-02-13T18:09:00Z",
       "updatedAt": "2026-02-13T18:09:00Z"
+    },
+    {
+      "slug": "global-travel-guide",
+      "title": "Global Travel Guide",
+      "subtitle": "Activities, Food, Entertainment, Hotels, Attractions & Budget Intelligence",
+      "query": "build a global travel guide to activities food entertainment as well as hotel ratings, best places to visit, best attractions, everything that vacationers would want to know",
+      "lens": "standard",
+      "icon": "Globe",
+      "accentColor": "cyan",
+      "visibility": "personal",
+      "createdAt": "2026-02-14T20:37:00Z",
+      "updatedAt": "2026-02-14T20:37:00Z"
     }
   ]
 }

@@ -8,9 +8,9 @@ The skill uses a **two-layer config** to make the entire setup portable across m
 
 ### Layer 1: Pointer Config (Machine-Local)
 
-**Location:** `~/.codeium/windsurf/skills/research-visualizer/config.json`
+**Location:** `<skill-root>/config.json` (where `<skill-root>` is the directory containing SKILL.md — written by `hub-gen.mjs scaffold --init`)
 
-This file is the **installation detection marker**. If it exists, the hub has been set up on this machine. Contains ONLY the path to the personal hub — never committed to any repo.
+This file is the **installation detection marker**. If it exists, the hub has been set up on this machine. Contains ONLY the path to the personal hub — never committed to any repo. Located relative to the skill's install directory so it works for both global and workspace installs.
 
 ```json
 {
@@ -30,9 +30,10 @@ Contains everything else: port, gitRepo, libraries, projects, telemetry. Committ
 
 ```json
 {
-  "version": "2.0",
+  "version": "3.0",
   "created": "2026-02-10T21:00:00Z",
   "port": 5180,
+  "glossaryEnrichment": true,
   "gitRepo": "git@github.com:user/personal-research-hub.git",
   "libraries": [
     {
@@ -42,8 +43,8 @@ Contains everything else: port, gitRepo, libraries, projects, telemetry. Committ
       "token": "<contributor PAT>",
       "gitUsername": "jdoe",
       "browseEnabled": true,
-      "contributeEnabled": true,
-      "confirmEachShare": false,
+      "contributeEnabled": false,
+      "confirmEachShare": true,
       "role": "contributor"
     }
   ],
@@ -57,8 +58,19 @@ Contains everything else: port, gitRepo, libraries, projects, telemetry. Committ
       "icon": "Coffee",
       "accentColor": "amber",
       "visibility": "personal",
-      "createdAt": "2026-02-09T12:00:00Z",
-      "updatedAt": "2026-02-09T14:00:00Z"
+      "createdAt": "2026-02-09T12:00:00Z"
+    }
+  ],
+  "collections": [
+    {
+      "extensionSlug": "incident-review",
+      "collectionName": "Incident Reviews",
+      "icon": "AlertTriangle",
+      "accentColor": "red",
+      "itemCount": 347,
+      "installedAt": "2026-02-10T14:00:00Z",
+      "lastUpdated": "2026-02-12T16:12:00Z",
+      "visibility": "personal"
     }
   ]
 }
@@ -68,9 +80,11 @@ Contains everything else: port, gitRepo, libraries, projects, telemetry. Committ
 
 | Field | Type | Description |
 |---|---|---|
-| `version` | string | Config schema version (current: "2.0") |
+| `version` | string | Config schema version (current: "3.0") |
+| `skillVersion` | string | Skill version that last scaffolded this hub. Stamped by `hub-gen.mjs scaffold` and auto-updated by `hub-gen.mjs validate --fix` when stale. Used to detect and auto-remediate stale shared components and scaffold files. |
 | `created` | ISO 8601 | When the hub was first set up |
 | `port` | number | Vite dev server port (default: 5180) |
+| `glossaryEnrichment` | boolean | Enable/disable Key Term Glossary enrichment (default: `true`). When enabled, Phase 6B scans dashboard text for domain/technical terms and wraps them in inline definition flyouts with research prompts. |
 | `gitRepo` | string or null | Remote git URL for the user's personal hub repo. `null` if no remote configured. |
 | `libraries` | array | Configured shared research libraries (can be empty). See [Libraries](#libraries-array). |
 | `projects` | array | All registered research projects |
@@ -83,8 +97,18 @@ Contains everything else: port, gitRepo, libraries, projects, telemetry. Committ
 | `projects[].accentColor` | string | Tailwind color name for project theming (e.g., "cyan", "orange") |
 | `projects[].createdAt` | ISO 8601 | When the project was first created |
 | `projects[].updatedAt` | ISO 8601 | Last modification time |
-| `projects[].visibility` | string | Project visibility tier: `"local"`, `"personal"` (default), or `"public"`. Controls where files live and how they sync. See [Visibility Tiers](#visibility-tiers). Note: local projects are stored in `.local-config.json` instead, not here. |
-| `projects[].telemetry` | object | Run telemetry and project statistics (see Telemetry Schema below) |
+| `projects[].visibility` | string | Project visibility tier: `"local"`, `"personal"` (default), or `"public"`. Controls where files live and how they sync. See [hub-visibility.md](hub-visibility.md). Note: local projects are stored in `.local-config.json` instead, not here. |
+| `collections` | array | Registered template-mode collections (can be empty). See [collections-architecture.md](collections-architecture.md). |
+| `collections[].extensionSlug` | string | Extension slug and directory name under `src/collections/` |
+| `collections[].collectionName` | string | Display name for the collection |
+| `collections[].icon` | string | Lucide icon name |
+| `collections[].accentColor` | string | Tailwind color name |
+| `collections[].itemCount` | number | Current number of items |
+| `collections[].installedAt` | ISO 8601 | When the collection was first set up |
+| `collections[].lastUpdated` | ISO 8601 | When the last item was added or updated |
+| `collections[].visibility` | string | Same three tiers as projects |
+
+**Note:** Project telemetry is NOT stored in `hub-config.json` or `projects/index.js`. Telemetry lives in per-project `meta.json` files and is lazy-loaded by the hub UI on demand. See [Telemetry Schema](#telemetry-schema).
 
 ### Libraries Array
 
@@ -98,8 +122,8 @@ Each entry in the `libraries` array represents a shared research library. Multip
 | `libraries[].token` | string or null | Fine-grained PAT for contributing. `null` if browse-only. |
 | `libraries[].gitUsername` | string or null | From `git config user.name` — appended to slugs for collision avoidance. `null` if browse-only. |
 | `libraries[].browseEnabled` | boolean | Whether the user can browse this library's projects |
-| `libraries[].contributeEnabled` | boolean | Whether the agent should push completed research to this library |
-| `libraries[].confirmEachShare` | boolean | If true, ask before each contribution. If false, auto-share. |
+| `libraries[].contributeEnabled` | boolean | Whether the agent should push completed research to this library. Defaults to `false` until the user explicitly provides a library remote AND a valid PAT. |
+| `libraries[].confirmEachShare` | boolean | If `true` (default), ask before each contribution. If `false`, auto-share without asking (power-user opt-in). |
 | `libraries[].role` | string | `"maintainer"` or `"contributor"` — affects UI badges and permissions |
 
 ### Layer 3: Machine-Local Vite Config (Gitignored)
@@ -128,17 +152,18 @@ Contains machine-specific library paths for Vite aliases. Created by the skill d
 
 ## Telemetry Schema
 
-Every project tracks telemetry about its creation and the research run that produced it. This data is stored in `hub-config.json` under each project's `telemetry` field and mirrored in `projects/index.js` for display in the hub UI.
+Every project tracks telemetry about its creation and the research run that produced it. This data is stored in `<slug>/meta.json` within the project directory and lazy-loaded by the hub UI on demand. Telemetry is **NOT** stored in `hub-config.json` or `projects/index.js` — those files contain only lightweight metadata.
 
 ### Example
 
 ```json
-"telemetry": {
-  "runStartedAt": "2026-02-09T12:00:00Z",
-  "runCompletedAt": "2026-02-09T14:30:00Z",
+{
+  "runStartedAt": "2026-02-09T12:00:00.000Z",
+  "runCompletedAt": "2026-02-09T14:30:00.000Z",
   "durationMinutes": 150,
+  "timingSource": "verified",
   "includedSetup": false,
-  "skillVersion": "4.0",
+  "skillVersion": "8.1",
   "userPrompt": "I'm looking to buy an espresso machine for home use",
   "researchPlan": "PRODUCT TYPE: Espresso Machine\nLIFECYCLE: Semi-Durable\n...",
   "checkpointModified": false,
@@ -151,6 +176,9 @@ Every project tracks telemetry about its creation and the research run that prod
   "filesGenerated": 14,
   "productsCompared": 18,
   "dataPointsCollected": 216,
+  "userWaitMinutes": 2.5,
+  "agentActiveMinutes": 147.5,
+  "checkpointWaitMinutes": 1.8,
   "phaseTiming": {
     "environment": 2,
     "interpret": 5,
@@ -159,7 +187,26 @@ Every project tracks telemetry about its creation and the research run that prod
     "research": 45,
     "analyze": 10,
     "build": 40,
-    "present": 13
+    "enrich": 3,
+    "present": 13,
+    "buildBreakdown": {
+      "add-project": 0.1,
+      "install-components": 0.1
+    },
+    "presentBreakdown": {
+      "validate": 0.3
+    }
+  },
+  "glossary": {
+    "enabled": true,
+    "termsIdentified": 6,
+    "termsRendered": 6,
+    "termsByCategory": {
+      "acronym": 2,
+      "domainJargon": 2,
+      "technicalConcept": 1,
+      "tribalKnowledge": 1
+    }
   }
 }
 ```
@@ -171,19 +218,27 @@ Every project tracks telemetry about its creation and the research run that prod
 | `runStartedAt` | ISO 8601 | ✓ | Timestamp when the skill invocation began (Phase 0 start) |
 | `runCompletedAt` | ISO 8601 | ✓ | Timestamp when Phase 7 finished |
 | `durationMinutes` | number | ✓ | Total wall-clock minutes from start to finish |
+| `timingSource` | string | | `"verified"` (build log with `session-end` exists — timing is provably accurate) or `"estimated"` (no build log or incomplete — timing is approximate). |
+| `userWaitMinutes` | number | | Total minutes the agent was blocked waiting for user input (tracker-computed) |
+| `agentActiveMinutes` | number | | `durationMinutes - userWaitMinutes` — actual agent work time (tracker-computed) |
+| `checkpointWaitMinutes` | number | | Minutes specifically waiting at the Phase 3D checkpoint (tracker-computed) |
+| `sessionTimeline` | array\|undefined | | Ordered segments for full session visualization (verified builds only). Each element: `{ type: "phase", phase: "<name>", minutes: N }` or `{ type: "wait", context: "checkpoint"|"approval", minutes: N }`. Computed from build-log events by `write-meta`; interleaves human wait blocks at their exact positions in the session. |
 | `includedSetup` | boolean | ✓ | Whether Phase 0B (first-time hub setup) was part of this run |
 | `skillVersion` | string | ✓ | Version from SKILL.md frontmatter (e.g., "4.0") |
 | `userPrompt` | string | ✓ | The exact original prompt the user provided to trigger the skill |
 | `researchPlan` | string | ✓ | The full research plan text presented at the Phase 3D checkpoint |
 | `checkpointModified` | boolean | ✓ | Whether the user requested changes at the checkpoint |
-| `model` | string | optional | LLM model identifier (e.g., "claude-sonnet-4-20250514", "gpt-4o") |
-| `tokenUsage` | number\|null | optional | Approximate total tokens consumed during the run, null if unavailable |
+| `model` | string | ✓ | LLM model identifier (e.g., "claude-sonnet-4-20250514", "gpt-4o") |
+| `tokenUsage` | object\|null | ✓ | Token consumption during the run, null if unavailable |
+| `tokenUsage.input` | number | | Input tokens sent to the model |
+| `tokenUsage.output` | number | | Output tokens generated by the model |
+| `tokenUsage.total` | number | | Total tokens (input + output) |
 | `searchesPerformed` | number | ✓ | Total web searches executed across all phases |
 | `sourcesCount` | number | ✓ | Number of unique sources cited in the final dashboard |
 | `sectionsBuilt` | number | ✓ | Number of dashboard sections created |
 | `chartsBuilt` | number | ✓ | Number of individual chart/visualization components |
 | `filesGenerated` | number | ✓ | Total files written to the project directory |
-| `productsCompared` | number\|null | optional | Number of products in comparison (Product lens only, null otherwise) |
+| `productsCompared` | number\|null | ✓ (product lens) | Number of products in comparison (required when lens=product, null otherwise) |
 | `dataPointsCollected` | number | ✓ | Approximate count of individual data points gathered during research |
 | `phaseTiming` | object | ✓ | Per-phase duration in minutes |
 | `phaseTiming.environment` | number | | Minutes spent in Phase 0 |
@@ -193,14 +248,26 @@ Every project tracks telemetry about its creation and the research run that prod
 | `phaseTiming.research` | number | | Minutes spent in Phase 4 |
 | `phaseTiming.analyze` | number | | Minutes spent in Phase 5 |
 | `phaseTiming.build` | number | | Minutes spent in Phase 6 |
+| `phaseTiming.enrich` | number | | Minutes spent in Phase 6B |
 | `phaseTiming.present` | number | | Minutes spent in Phase 7 |
-| `dataQualityDistribution` | object | optional | Aggregated count of data points by quality tier |
+| `phaseTiming.buildBreakdown` | object | | Per-tool timing within the build phase (tracker-computed). Keys are tool names (e.g., `add-project`, `install-components`), values are minutes. |
+| `phaseTiming.presentBreakdown` | object | | Per-tool timing within the present phase (tracker-computed). Keys are tool names (e.g., `validate`), values are minutes. |
+| `glossary` | object | ✓ | Key Term Glossary enrichment metrics |
+| `glossary.enabled` | boolean | | Whether the glossary enrichment ran for this project |
+| `glossary.termsIdentified` | number | | Total candidate terms found before density filtering |
+| `glossary.termsRendered` | number | | Final terms wrapped in GlossaryTerm components (after floor/ceiling rules) |
+| `glossary.termsByCategory` | object | | Breakdown of rendered terms by selection category |
+| `glossary.termsByCategory.acronym` | number | | Acronyms & initialisms |
+| `glossary.termsByCategory.domainJargon` | number | | Domain-specific jargon |
+| `glossary.termsByCategory.technicalConcept` | number | | Methodological/scientific terms |
+| `glossary.termsByCategory.tribalKnowledge` | number | | Industry-insider terms |
+| `dataQualityDistribution` | object | ✓ | Aggregated count of data points by quality tier |
 | `dataQualityDistribution.t1` | number | | Count of T1 (Gold) data points — peer-reviewed, large sample |
 | `dataQualityDistribution.t2` | number | | Count of T2 (Silver) data points — institutional/industry reports |
 | `dataQualityDistribution.t3` | number | | Count of T3 (Bronze) data points — small studies, single source |
 | `dataQualityDistribution.t4` | number | | Count of T4 (Estimate) data points — interpolated, proxy-based |
-| `sourceDiversityScore` | number | optional | Ratio of unique source domains to total sources (0–1). Higher = more diverse sourcing. |
-| `promptComplexity` | object | optional | Analysis of the user's original prompt |
+| `sourceDiversityScore` | number | ✓ | Ratio of unique source domains to total sources (0–1). Higher = more diverse sourcing. |
+| `promptComplexity` | object | ✓ | Analysis of the user's original prompt |
 | `promptComplexity.wordCount` | number | | Word count of the user prompt |
 | `promptComplexity.entityCount` | number | | Count of named entities (brands, places, people, products) in the prompt |
 | `promptComplexity.ambiguityScore` | number | | 0–1 score where 0 = highly specific, 1 = very open-ended |
@@ -324,24 +391,83 @@ estimatedMinutes = readingMinutes + chartExplorationMinutes + interactiveOverhea
 
 | Data Point | Capture Moment |
 |---|---|
-| `runStartedAt` | Phase 0 — immediately when skill begins |
+| `runStartedAt` | **Tracker** — first event timestamp (session-start) |
+| `runCompletedAt` | **Tracker** — last event timestamp (session-end, written by write-meta) |
+| `durationMinutes` | **Tracker** — computed from runStartedAt/runCompletedAt delta |
+| `phaseTiming.*` | **Tracker** — computed from phase-start/phase-end event deltas |
+| `userWaitMinutes` | **Tracker** — sum of user-prompt/user-response deltas |
+| `agentActiveMinutes` | **Tracker** — durationMinutes - userWaitMinutes |
+| `checkpointWaitMinutes` | **Tracker** — delta for checkpoint-context user-prompt/user-response |
+| `timingSource` | **Build log** — `"verified"` if `build-log.jsonl` exists with `session-end`, otherwise `"estimated"` |
+| `skillVersion` | **Tracker** — stamped in session-start event |
+| `model` | **Tracker** — stamped in session-start event (if provided) |
 | `includedSetup` | Phase 0 — set to true if Phase 0B runs |
-| `skillVersion` | Phase 0 — read from SKILL.md frontmatter |
 | `userPrompt` | Phase 1 — the raw user input before interpretation |
 | `researchPlan` | Phase 3D — the full checkpoint text shown to the user |
 | `checkpointModified` | Phase 3D — whether user requested adjustments |
-| `model` | Phase 0 — note the current model if detectable |
 | `searchesPerformed` | Phases 2-4 — increment counter with each web search |
 | `sourcesCount` | Phase 6 — count unique sources in the data files |
 | `sectionsBuilt`, `chartsBuilt`, `filesGenerated` | Phase 6 — count after build completes |
 | `productsCompared` | Phase 6 — count products array length (Product lens) |
 | `dataPointsCollected` | Phase 4 — count data points gathered |
-| `phaseTiming.*` | Each phase — note start/end timestamps, calculate delta |
+| `glossary.*` | Phase 6B — capture after enrichment completes: enabled flag, terms identified vs rendered, category breakdown |
 | `contentAnalysis.*` | Phase 7 — analyze all text in built components |
 | `hoursSaved.*` | Phase 7 — calculate from build metrics using formulas above |
 | `consumptionTime.*` | Phase 7 — calculate from word count + chart count + FK grade |
-| `runCompletedAt`, `durationMinutes` | Phase 7 — final timestamp and total calculation |
 | `tokenUsage` | Phase 7 — if available from the runtime environment |
+
+### Build Log (v8.1+)
+
+All timing telemetry is captured by `hub-gen.mjs` via a `build-log.jsonl` event log in each project directory. The AI calls `track` at phase boundaries; the tool records the real timestamp. `write-meta` reads the build log and computes all timing fields deterministically. The build log is a **permanent committed artifact** — it is preserved after `write-meta` completes for auditability, rebuildability, and session resume.
+
+**Format:** JSONL (one JSON object per line). Each line is independently valid — a crash loses at most the last line.
+
+```jsonl
+{"event":"session-start","sessionId":"a1b2c3d4","skillVersion":"8.1","slug":"my-project","ts":"2026-02-23T23:29:00.000Z"}
+{"event":"phase-start","phase":"environment","ts":"2026-02-23T23:29:00.100Z"}
+{"event":"phase-end","phase":"environment","ts":"2026-02-23T23:29:02.500Z"}
+{"event":"user-prompt","phase":"discover","context":"checkpoint","ts":"2026-02-23T23:31:00.000Z"}
+{"event":"user-response","phase":"discover","context":"checkpoint","ts":"2026-02-23T23:33:30.000Z"}
+{"event":"tool-start","phase":"build","tool":"add-project","ts":"2026-02-23T23:33:31.000Z"}
+{"event":"tool-end","phase":"build","tool":"add-project","filesWritten":4,"ts":"2026-02-23T23:33:32.200Z"}
+{"event":"error","phase":"build","message":"vite build failed: missing import","ts":"2026-02-23T23:38:20.000Z"}
+{"event":"session-end","status":"completed","ts":"2026-02-23T23:39:47.000Z"}
+```
+
+**Event types:** `session-start`, `session-end`, `phase-start`, `phase-end`, `user-prompt`, `user-response`, `tool-start`, `tool-end`, `error`
+
+**Lifecycle:**
+1. AI calls `track <slug> session-start` at the start of the build
+2. AI calls `track <slug> phase-start/phase-end <phase>` at each phase boundary
+3. **Checkpoint gate only:** AI calls `track <slug> user-prompt <phase> checkpoint` immediately before presenting the Phase 3D checkpoint to the user, and `track <slug> user-response <phase> checkpoint` immediately after the user responds. These events are NOT emitted for general conversational turns — only at explicit approval gates where the AI stops and waits.
+4. `add-project` auto-writes `tool-start`/`tool-end` events (self-instrumenting)
+5. AI brackets `install-components` and `validate` with `track <slug> tool-start/tool-end` calls
+6. `write-meta` reads the build log, computes all timing, writes `session-end`, **preserves** the file
+7. **Session resume:** At the start of any resumed session, call `track-read <slug> --json` to determine which phases are complete and where to continue. Do not re-run completed phases.
+
+**`timingSource` — Binary Trust Signal**
+
+`timingSource` has exactly two values: `"verified"` or `"estimated"`. The `build-log.jsonl` file is the proof artifact.
+
+| `timingSource` | Condition | Meaning |
+|---|---|---|
+| `"verified"` | `build-log.jsonl` exists with a `session-end` event | Timing was measured by the build tracker. Phase durations, agent active time, and human wait time are derived from real event timestamps. |
+| `"estimated"` | No `build-log.jsonl`, or log has no `session-end` | Timing is an AI estimate. Numbers are approximate. |
+
+**Resolution in `write-meta`:** If `build-log.jsonl` exists and contains a `session-end` event, `write-meta` computes all timing from the log and sets `timingSource: "verified"`. Otherwise, it accepts AI-provided timing and sets `timingSource: "estimated"`.
+
+**Resolution in `validate --fix`:** For each project, validate checks whether `build-log.jsonl` exists with `session-end`. If `timingSource` is missing, has a legacy value (`"tracker"`, `"backfilled"`, `"ai-best-effort"`, `"ai-estimated"`, `"none"`), or claims `"verified"` without proof, `--fix` corrects it.
+
+**When verified, per-phase behavior:**
+- Phase has `phase-start` + `phase-end` → computed from event delta (overrides AI value)
+- Phase has no events but AI provided `phaseTiming.<phase>` → AI value kept as fallback
+- Phase has neither → stamped `"untracked"` with a warning
+
+**UI presentation:** The hub shows a ✓ (green) badge next to build time for verified projects and a ~ (gray) badge for estimated. The flyout header shows a banner explaining the timing provenance.
+
+**Stale detection:** `validate` warns about `build-log.jsonl` files older than 24 hours that have no `session-end` event — these indicate interrupted builds.
+
+**Git:** `build-log.jsonl` is a permanent artifact — committed alongside `meta.json` and project files.
 
 ## Hub Directory Structure
 
@@ -473,7 +599,7 @@ When the skill detects no pointer config (`config.json`):
 
 1. **Inform user**: "I see this is your first time running Research Visualizer. I need to set up a Research Hub — a single web app that will host all your research dashboards."
 2. **Ask about existing hub**: Clone existing personal hub repo, or scaffold fresh
-3. **Scaffold hub** (if fresh): Create all hub files using the exact templates from [hub-scaffold-templates.md](hub-scaffold-templates.md) (package.json, vite config with dynamic `.local-config.json` reading, App.jsx with two-section sidebar, HubHome with dual browsable areas, etc.)
+3. **Scaffold hub** (if fresh): Run `node $GEN <hub-path> scaffold --init` — copies all template files from `scripts/scaffold-templates/`, installs shared components, creates `hub-config.json` with defaults, writes pointer config. See [hub-scaffold-templates.md](../assets/hub-scaffold-templates.md) for architecture documentation.
 4. **Run npm install**
 5. **Create pointer config** (`config.json`) with `personalHubPath`, and **`hub-config.json`** in the hub directory with port, empty libraries, empty projects
 6. **Create `.local-config.json`** in the hub directory (gitignored) with machine-specific library paths
@@ -499,6 +625,47 @@ The Research Hub is designed to be backed by a git repo, allowing research to be
 | `.local-config.json` (in hub directory) | ❌ | **Machine-local** — library paths for Vite aliases, differs per machine |
 
 The `gitRepo` field in `hub-config.json` is optional. If set, the skill knows to pull on startup and push after builds.
+
+### File Ownership: Sacred vs Regenerable
+
+Every file in the hub falls into one of two categories based on **who owns it**:
+
+- **Sacred** — Contains user data or user-specific config. The skill must NEVER overwrite these. Safe operations: read, add fields with defaults, validate.
+- **Regenerable** — Generated by `hub-gen.mjs scaffold` from `scripts/scaffold-templates/`. The skill can safely overwrite these at any time. User content is never stored here.
+
+| File | Classification | Owner | Notes |
+|------|---------------|-------|-------|
+| `hub-config.json` → `projects[]`, `libraries[]`, `collections[]`, `gitRepo`, `port`, `created` | **Sacred** | User data | Project metadata, library configs, user preferences |
+| `hub-config.json` → `version`, `skillVersion` | **Sacred** (managed) | Skill | Schema version markers — skill stamps these but never deletes user fields |
+| `.local-config.json` → `libraries[]`, `localProjects[]` | **Sacred** | User data | Machine-specific paths and local-only project metadata |
+| `config.json` → `personalHubPath` | **Sacred** | User data | Machine-local pointer to hub directory |
+| `src/projects/*/` (all project directories & contents) | **Sacred** | User data | Research dashboards — App.jsx, components/, data/ per project |
+| `src/local-projects/*/` (all local project dirs) | **Sacred** | User data | Local-only research dashboards |
+| `src/collections/*/` (all collection dirs) | **Sacred** | User data | Curated project groupings |
+| `src/App.jsx` | **Regenerable** | Skill | Hub shell — sidebar, routing, icon map, accent colors. Regenerate from templates. |
+| `src/components/HubHome.jsx` | **Regenerable** | Skill | Landing page — project cards, telemetry stats, compare view. |
+| `src/components/CompareView.jsx` | **Regenerable** | Skill | Side-by-side project comparison UI. |
+| `src/components/ProjectDetailFlyout.jsx` | **Regenerable** | Skill | Telemetry detail panel. |
+| `src/components/telemetryUtils.js` | **Regenerable** | Skill | Shared telemetry formatting helpers. |
+| `src/main.jsx`, `src/index.css`, `index.html` | **Regenerable** | Skill | App entry point and base styles. |
+| `vite.config.js` | **Regenerable** | Skill | Build config with dynamic library alias resolution. |
+| `tailwind.config.js`, `postcss.config.js` | **Regenerable** | Skill | CSS toolchain config. |
+| `package.json` | **Regenerable** (merge) | Skill | Merge strategy: add new deps, preserve existing versions. |
+| `src/projects/index.js` | **Regenerable** | Skill | Registry file — regenerated from `hub-config.json` `projects[]` array. |
+| `src/local-projects/index.js` | **Regenerable** | Skill | Registry file — regenerated from `.local-config.json` `localProjects[]` array. |
+
+**Key principle:** The skill generates everything except the user's research data and config preferences. If a file is regenerable, the skill can rebuild it from templates + config at any time without losing user work.
+
+**Why this matters for updates:** When `git pull` brings in new projects, the sacred project files (data, components) arrive correctly. But the regenerable scaffold files (App.jsx icons, accent colors, registry) may be stale if they were last generated on a different machine or skill version. The skill should detect this drift and regenerate. See [Issue #6](https://github.com/mrshaun13/research-visualizer/issues/6) for the proposed auto-heal mechanism.
+
+### External Dependencies (Libraries)
+
+Library repos (e.g., `research-hub`) are **external** — the skill does not own their files. However, the skill should validate library imports during Phase 0:
+
+| File | Classification | Owner | Validation |
+|------|---------------|-------|------------|
+| `<library>/src/projects/index.js` | **External** | Library maintainer | Parse-check after `git pull`; skip library on error |
+| `<library>/src/projects/*/` | **External** | Library contributors | Read-only; never modified by the skill |
 
 ### Sync Workflow
 
@@ -573,7 +740,7 @@ When one or more libraries are available, the hub displays content in **two plac
 - When viewing a project, a **back button bar** appears at the top of the main content area with `← Back | Project Title` and a "Community — read-only" badge for shared projects
 - Clicking any project in either sidebar section switches directly to that project
 
-The hub reads each library's `src/projects/index.js` via Vite aliases (e.g., `@public-library`) to discover available projects and renders them as read-only cards. See [hub-scaffold-templates.md](hub-scaffold-templates.md) for the exact App.jsx and HubHome.jsx implementations.
+The hub reads each library's `src/projects/index.js` via Vite aliases (e.g., `@public-library`) to discover available projects and renders them as read-only cards. See `scripts/scaffold-templates/src/App.jsx` and `scripts/scaffold-templates/src/components/HubHome.jsx` for the exact implementations.
 
 **Key differences from local projects:**
 - Library projects are read-only — no editing, no data changes
@@ -656,368 +823,17 @@ The key requirement: if an alias doesn't resolve (library not cloned on this mac
 
 ---
 
-## Community Library
+## Community Library & Contribution
 
-The Research Hub supports an optional community **contribution** model. Users can share their completed research dashboards to the public library, helping others learn and improving the skill through diverse research examples. This is separate from browsing — contributing requires a PAT.
-
-### Architecture
-
-```
-┌─────────────────────┐     git push              ┌──────────────────────┐
-│  User's Own Hub     │ ──────────────────────►   │  User's Own Repo     │
-│  ~/git/personal-    │     (personal remote)     │  (their GitHub)      │
-│  research-hub/      │                           │                      │
-│                     │                           └──────────────────────┘
-│                     │     GitHub API
-│                     │  (blobs → tree → commit   ┌──────────────────────┐
-│                     │   → update ref)           │  Public Library      │
-│                     │ ──────────────────────►   │  mrshaun13/          │
-│                     │     PAT auth              │  research-hub        │
-└─────────────────────┘                           │  (agent-contributions│
-                                                  │   branch)            │
-                                                  └──────────┬───────────┘
-                                                             │ push triggers
-                                                  ┌──────────▼───────────┐
-                                                  │  GitHub Action       │
-                                                  │  • Detect projects   │
-                                                  │  • Validate structure│
-                                                  │  • Build test        │
-                                                  │  • Auto-merge → main│
-                                                  │  (or Issue on fail)  │
-                                                  └──────────────────────┘
-```
-
-**Key design decision:** The personal hub and public library are **completely separate git repositories** with independent histories. Contributions cannot use `git push` across repos. Instead, the agent uses the **GitHub REST API** (Git Data endpoints) to create blobs, trees, and commits directly on the library's `agent-contributions` branch. This works with any PAT that has `Contents: write` permission — no local clone of the library is needed.
-
-### Config
-
-Contribution settings are stored in `hub-config.json` `libraries` array — each library entry has `contributeEnabled`, `token`, `gitUsername`, `branch`, and `remote` fields. See [Libraries Array](#libraries-array) for the full schema.
-
-**Note on PAT storage:** The contributor PAT is stored in `hub-config.json` which IS committed to the personal hub repo. This is acceptable for **private** personal repos. If the personal repo is ever made public, GitHub push protection should block the push. Users should be aware of this tradeoff.
-
-### Slug Collision Avoidance
-
-When library sharing is enabled, project slugs are suffixed with the contributor's `gitUsername`:
-- Local slug: `chainsaw-comparison`
-- Library slug: `chainsaw-comparison-jdoe`
-
-This ensures multiple contributors can research the same topic without overwriting each other's projects in the library.
-
-### Agent-Side Setup (Phase 0B-LIBRARIES)
-
-When the user opts in to contributing during Phase 0B-LIBRARIES and provides a PAT:
-
-1. Update the library entry in `hub-config.json` with `contributeEnabled: true`, `token`, `gitUsername`, and `branch`
-2. **No git remote is needed.** Contributions use the GitHub API directly.
-3. The PAT is used as an `Authorization: token <PAT>` header on all API calls.
-
-### Agent-Side Contribution Flow (Phase 7 Step 8)
-
-For each library in `hub-config.json` `libraries` array where `contributeEnabled` is true, the agent shares the project via the GitHub REST API:
-
-1. **Determine library slug:** `<local-slug>-<gitUsername>` (e.g., `pixel-upgrade-analysis-mrshaun13`)
-
-2. **Get branch HEAD:**
-   ```
-   GET /repos/mrshaun13/research-hub/git/ref/heads/agent-contributions
-   ```
-   Extract the commit SHA, then get the tree SHA from that commit.
-
-3. **Read the library's current `index.js`:**
-   ```
-   GET /repos/mrshaun13/research-hub/contents/src/projects/index.js?ref=agent-contributions
-   ```
-   Decode the base64 content. Add the new project's registry entry (with full telemetry) to the `projectRegistry` array and add the lazy component import to `projectComponents`.
-
-4. **Create blobs** for each project file and the updated `index.js`:
-   ```
-   POST /repos/mrshaun13/research-hub/git/blobs
-   { "content": "<file content>", "encoding": "utf-8" }
-   ```
-   Files to push: `App.jsx`, all `components/*.jsx`, all `data/*.js`, and the updated `index.js`.
-
-5. **Create tree** with all blob entries:
-   ```
-   POST /repos/mrshaun13/research-hub/git/trees
-   {
-     "base_tree": "<tree SHA from step 2>",
-     "tree": [
-       { "path": "src/projects/<library-slug>/App.jsx", "mode": "100644", "type": "blob", "sha": "<blob SHA>" },
-       { "path": "src/projects/<library-slug>/components/Overview.jsx", ... },
-       { "path": "src/projects/index.js", "mode": "100644", "type": "blob", "sha": "<updated index blob>" }
-     ]
-   }
-   ```
-
-6. **Create commit:**
-   ```
-   POST /repos/mrshaun13/research-hub/git/commits
-   {
-     "message": "Add <project title> (contributor: <gitUsername>)",
-     "tree": "<new tree SHA>",
-     "parents": ["<branch HEAD SHA from step 2>"]
-   }
-   ```
-
-7. **Update ref** to point `agent-contributions` to the new commit:
-   ```
-   PATCH /repos/mrshaun13/research-hub/git/refs/heads/agent-contributions
-   { "sha": "<new commit SHA>" }
-   ```
-
-8. **Inform the user:** "Your research has been shared with the public library. A validation workflow will run automatically — if it passes, your research will be merged to main without any manual steps."
-
-All API calls use `Authorization: token <library.token>` header. If any call returns 401/403, inform the user the PAT may be invalid or expired.
-
-### Automated Validation & Merge (Server-Side)
-
-When a push lands on `agent-contributions`, a GitHub Action (`.github/workflows/process-contributions.yml`) runs automatically:
-
-1. **Detect new projects** — compares `agent-contributions` against `main` to find new `App.jsx` files
-2. **Validate project structure** — runs `.github/scripts/validate-research-project.mjs` which checks:
-   - File structure: `App.jsx`, `components/` (with Overview.jsx + Sources.jsx minimum), `data/` with substantial files
-   - Registry entry: all required fields present, valid lens, valid slug format, ISO timestamps
-   - Telemetry: all required fields, sane ranges, phase timing, content analysis, hours saved, consumption time
-   - Content quality: React imports, JSX patterns, chart/visualization usage, data exports
-   - Product lens extras: `productsCompared >= 3` for product lens projects
-3. **Build test** — runs `npm ci && vite build` to verify no compilation errors
-4. **If ALL pass** → auto-merges `agent-contributions` into `main` via the GitHub API merge endpoint (authenticated with `ADMIN_PAT` repo secret)
-5. **If ANY fail** → creates a GitHub Issue with the full validation report, tagged `validation-failed`
-
-### Security Model
-
-| Layer | Protection |
-|---|---|
-| **Contributor PAT** | Fine-grained, scoped to `mrshaun13/research-hub` only, `Contents: write` permission. Can only push to `agent-contributions` (branch protection blocks `main`). |
-| **Branch protection on `main`** | Repository ruleset requires PRs for changes. Only the repo admin (SSH) and the `ADMIN_PAT` (stored as a GitHub secret) can write to `main`. |
-| **Validation script** | Lives on `main` — contributors cannot modify it. Runs server-side on GitHub's infrastructure. Checks structure, telemetry, content quality, and build integrity. |
-| **Auto-merge** | Uses `ADMIN_PAT` (repo secret, invisible to contributors) via the GitHub API merge endpoint. Only executes after all validation checks pass. |
-| **Failure notification** | Failed contributions create a GitHub Issue with details — visible to both the repo owner and the contributor. |
-
-### Maintainer-Side Setup
-
-The library maintainer (repo owner) needs to configure:
-
-1. **Branch protection on `main`:**
-   - Repository ruleset requiring pull requests for changes
-   - Repository admin in the bypass list
-   - `ADMIN_PAT` stored as a repo secret (Settings → Secrets → Actions) — this PAT must have `Contents: write` and belong to a repo admin
-
-2. **GitHub Action** (`.github/workflows/process-contributions.yml`):
-   - Already configured — triggers on push to `agent-contributions`
-   - Validates, builds, and auto-merges on success
-
-3. **Validation script** (`.github/scripts/validate-research-project.mjs`):
-   - Already configured — comprehensive checks for structure, metadata, telemetry, and content quality
-
-4. **Scoped PAT for contributors:**
-   - Create a fine-grained PAT with:
-     - Repository access: `mrshaun13/research-hub` only
-     - Permissions: Contents (write)
-   - Branch protection ensures this PAT can only write to `agent-contributions`
-   - Distribute to users who opt in
-
-### Zero-Effort Sharing
-
-Users who don't have their own git repo can still share:
-- The agent uses the GitHub API directly — no local clone of the library is needed
-- After a build, the agent pushes project files via the API
-- The user doesn't need to understand git — the agent handles everything
-
-### Ad-Hoc Sharing
-
-Users can share past research at any time by asking the skill:
-> "Share my chainsaw comparison with the public library"
-
-The skill will:
-1. Read the project files from the user's local hub
-2. Push them to `agent-contributions` via the GitHub API (same flow as Phase 7 step 8)
-3. Confirm to the user: "Shared! The validation workflow will run automatically."
+See [hub-contribution.md](hub-contribution.md) for the complete contribution architecture, GitHub API flow, security model, validation, and ad-hoc sharing.
 
 ## Visibility Tiers
 
-Every research project has a **visibility** tier that controls where its files live, whether it syncs to the user's personal git repo, and whether it's shared to public libraries.
+See [hub-visibility.md](hub-visibility.md) for the complete visibility system including three tiers (local/personal/public), smart defaults, upgrade/downgrade logic, UI badges, VisibilitySelector component, and the Vite server middleware for visibility changes.
 
-### The Three Tiers
+## Collections (Template Mode)
 
-| Tier | `visibility` | Files location | Config location | Personal git sync | Library sharing |
-|---|---|---|---|---|---|
-| **Local** | `"local"` | `src/local-projects/<slug>/` (gitignored) | `.local-config.json` (gitignored) | Never | No — sharing upgrades to public first |
-| **Personal** | `"personal"` | `src/projects/<slug>/` | `hub-config.json` (committed) | Yes — committed + pushed | No — sharing upgrades to public first |
-| **Public** | `"public"` | `src/projects/<slug>/` | `hub-config.json` (committed) | Yes — committed + pushed | Yes — auto-shared per library settings |
-
-### Smart Default
-
-- If `hub-config.json` has a valid `gitRepo` → default = **`"personal"`**
-- If `hub-config.json` has NO `gitRepo` (empty/missing) → default = **`"local"`** (nowhere to sync)
-
-### Sharing Upgrades Visibility — No Mixed States
-
-There is no "local + published" state. If a user shares a local or personal project to a library, the project is **upgraded to public** first (local files move from `src/local-projects/` to `src/projects/`, metadata moves to `hub-config.json`). Sharing always means the project becomes public. This keeps the model clean: visibility = where files live, and public = synced + shared.
-
-### Schema
-
-**Personal and public projects** — stored in `hub-config.json` and mirrored in `src/projects/index.js`:
-
-```json
-{
-  "slug": "career-pivot-explorer",
-  "title": "Career Pivot Explorer",
-  "visibility": "personal",
-  ...
-}
-```
-
-**Local projects** — stored in `.local-config.json` `localProjects` array and mirrored in `src/local-projects/index.js`:
-
-```json
-{
-  "localProjects": [
-    {
-      "slug": "secret-salary-research",
-      "title": "Secret Salary Research",
-      "subtitle": "Confidential Compensation Analysis",
-      "query": "Research salary ranges for...",
-      "lens": "standard",
-      "icon": "Lock",
-      "accentColor": "gray",
-      "visibility": "local",
-      "createdAt": "2026-02-11T12:00:00Z",
-      "telemetry": { ... }
-    }
-  ]
-}
-```
-
-### Behavior by Phase
-
-| Phase | Behavior |
-|---|---|
-| **Phase 3D (checkpoint)** | After the research plan, **inform only** (don't ask): *"This project will be **[personal/local]** by default."* Default is based on `gitRepo` presence. User can change visibility later from the hub UI or by asking the agent. |
-| **Phase 6 (BUILD)** | Write files to `src/projects/` (personal/public) or `src/local-projects/` (local). Update the correct registry and config. Set `visibility` field. |
-| **Phase 7 step 5 (personal git sync)** | `git add -A` is safe — `src/local-projects/` is gitignored. Only personal + public projects get committed. |
-| **Phase 7 step 6 (library share)** | Auto-share only if `visibility === "public"`. For personal/local: skip. |
-| **Ad-hoc sharing** | "Share my X with the library" → if project is local or personal, **upgrade to public first** (move files if needed, update config), then share. Confirm with user: *"This will make the project public (synced + shared). Proceed?"* |
-
-### Hub UI
-
-The visibility tier is shown on every project card and controllable from the hub:
-
-**Visibility badges (on project cards in HubHome.jsx):**
-
-| Badge | Icon | Color | Meaning |
-|---|---|---|---|
-| **Local** | `HardDrive` | gray | This machine only |
-| **Synced** | `GitBranch` | blue | Synced to personal repo |
-| **Public** | `Globe` | emerald | Synced + shared to public library |
-
-**VisibilitySelector (dropdown on each card):**
-- Clicking the badge opens a small dropdown to change the tier
-- **Upgrading** (local→personal, personal→public) requires a confirmation dialog
-- **Downgrading** (public→personal) is instant (safe direction)
-- **personal→local** warns: *"This project will be removed from your personal repo on next sync. Files remain locally and in git history."*
-
-**Confirmation dialog (upgrade only):**
-- Triggered when upgrading visibility
-- For local→personal: "Sync this project to your personal repo? It will be available on all your machines."
-- For personal→public or local→public: "Make this project public? It will be synced to your repo and shared to configured libraries."
-- Two buttons: "Cancel" and "Confirm"
-- Styled as a modal overlay with backdrop blur, consistent with hub dark theme
-
-### Vite Server Middleware for Visibility Changes
-
-Replace the old `/api/toggle-lock` with `/api/set-visibility`:
-
-```js
-{
-  name: 'visibility-api',
-  configureServer(server) {
-    server.middlewares.use('/api/set-visibility', async (req, res) => {
-      if (req.method !== 'POST') {
-        res.statusCode = 405;
-        res.end(JSON.stringify({ error: 'Method not allowed' }));
-        return;
-      }
-      let body = '';
-      req.on('data', chunk => { body += chunk; });
-      req.on('end', () => {
-        const backup = {};
-        try {
-          const { slug, visibility } = JSON.parse(body);
-          if (!['local', 'personal', 'public'].includes(visibility)) {
-            res.statusCode = 400;
-            res.end(JSON.stringify({ error: 'Invalid visibility' }));
-            return;
-          }
-
-          const configPath = path.resolve(__dirname, 'hub-config.json');
-          const localConfigPath = path.resolve(__dirname, '.local-config.json');
-          const config = JSON.parse(readFileSync(configPath, 'utf-8'));
-          const localConfig = existsSync(localConfigPath)
-            ? JSON.parse(readFileSync(localConfigPath, 'utf-8'))
-            : { libraries: [] };
-          if (!localConfig.localProjects) localConfig.localProjects = [];
-
-          // Snapshot for rollback
-          backup.config = JSON.stringify(config, null, 2);
-          backup.localConfig = JSON.stringify(localConfig, null, 2);
-
-          const inMain = config.projects.find(p => p.slug === slug);
-          const inLocal = localConfig.localProjects.find(p => p.slug === slug);
-          const project = inMain || inLocal;
-          if (!project) {
-            res.statusCode = 404;
-            res.end(JSON.stringify({ error: 'Project not found' }));
-            return;
-          }
-
-          const currentVis = project.visibility || 'personal';
-          const movingToLocal = visibility === 'local' && currentVis !== 'local';
-          const movingFromLocal = visibility !== 'local' && currentVis === 'local';
-
-          // Move files between directories if crossing the local boundary
-          const projectsDir = path.resolve(__dirname, 'src/projects', slug);
-          const localDir = path.resolve(__dirname, 'src/local-projects', slug);
-
-          if (movingToLocal && existsSync(projectsDir)) {
-            mkdirSync(path.resolve(__dirname, 'src/local-projects'), { recursive: true });
-            renameSync(projectsDir, localDir);
-            // Move metadata: hub-config → .local-config
-            config.projects = config.projects.filter(p => p.slug !== slug);
-            project.visibility = 'local';
-            localConfig.localProjects.push(project);
-          } else if (movingFromLocal && existsSync(localDir)) {
-            renameSync(localDir, projectsDir);
-            // Move metadata: .local-config → hub-config
-            localConfig.localProjects = localConfig.localProjects.filter(p => p.slug !== slug);
-            project.visibility = visibility;
-            config.projects.push(project);
-          } else {
-            // Same directory — just update the field
-            project.visibility = visibility;
-          }
-
-          writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n');
-          writeFileSync(localConfigPath, JSON.stringify(localConfig, null, 2) + '\n');
-
-          res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify({ ok: true, slug, visibility, moved: movingToLocal || movingFromLocal }));
-        } catch (e) {
-          // Rollback on failure
-          try {
-            if (backup.config) writeFileSync(path.resolve(__dirname, 'hub-config.json'), backup.config + '\n');
-            if (backup.localConfig) writeFileSync(path.resolve(__dirname, '.local-config.json'), backup.localConfig + '\n');
-          } catch (_) {}
-          res.statusCode = 500;
-          res.end(JSON.stringify({ error: e.message }));
-        }
-      });
-    });
-  },
-}
-```
-
-**Note:** This middleware runs during `npm run dev` (Vite dev server). It reads/writes both `hub-config.json` and `.local-config.json`. The imports `writeFileSync`, `mkdirSync`, `renameSync`, and `existsSync` must all be imported from `'fs'` in `vite.config.js`. When files are moved between directories, the agent should regenerate both `index.js` registries on next invocation (or the user can restart the dev server).
+See [collections-architecture.md](collections-architecture.md) for the template-mode output format: collection directory structure, manifest.json, schema.json, Template.jsx, hub rendering (sidebar groups, table views, search), and scale characteristics.
 
 ## Port Management
 
@@ -1039,32 +855,19 @@ This avoids port conflicts from multiple dev servers. Only ONE server ever runs.
 | File writing fails (write_to_file doesn't persist) | Fall back to shell heredoc commands, verify with `ls -la` |
 | Build fails with import errors | Check all exports match imports, verify data file schemas |
 | Charts render but show wrong data | Spot-check: compare 2-3 data points in chart vs source data file |
-| Product lens: too many products to compare (>25) | Narrow to top 15-20 by eliminating discontinued, unavailable, or redundant models |
-| Product lens: can't find purchase links for a product | Use manufacturer URL + generic retailer search URL; note "check availability" |
-| Product lens: conflicting specs across sources | Prefer manufacturer specs > independent testing > retailer listings; note discrepancies |
-| Product lens: user's product category is ambiguous | Ask: "Are you looking for [interpretation A] or [interpretation B]?" before proceeding |
-| Product lens: no clear market tiers exist | Use price-based segmentation (Budget/Mid/Premium) or skip tier system entirely |
-| Product lens: product is too niche (<5 options exist) | Include all available options; supplement with adjacent products or previous-gen models |
 | Hub: pointer config exists but personalHubPath directory is missing | Re-run first-time setup (Phase 0B). If user has a remote, clone it. |
 | Hub: dev server already running on the port | Skip starting a new server; tell user to refresh browser |
 | Hub: project slug already exists in registry | Ask user: overwrite existing project or choose a new name? |
 | Hub: npm install fails in hub directory | Check node/npm versions, clear node_modules and retry, check for lockfile conflicts |
 | Hub: new project doesn't appear after refresh | Verify projects/index.js was updated correctly, check for import errors in browser console |
+| Glossary: fewer than 3 terms found in a project | The content is highly accessible — still create the glossaryTerms.js with whatever was found (even 0). Log in telemetry as `termsIdentified: N, termsRendered: N`. The floor is a target, not a hard requirement. |
+| Glossary: user wants to disable enrichment | Set `glossaryEnrichment: false` in `hub-config.json`. Phase 6B will be skipped entirely. Telemetry records `glossary.enabled: false`. |
 | Git: push fails with authentication error | Verify SSH keys or HTTPS credentials are configured for the remote |
 | Git: pull has merge conflicts | Conflicts likely in `src/projects/index.js` — resolve by keeping both project entries, then re-commit |
 | Git: pointer config has wrong personalHubPath after clone | Pointer config is machine-local (not in repo) — just update the `personalHubPath` field to match the local clone path |
 | Git: user wants to add remote to existing hub later | `cd <hubPath> && git remote add origin <url> && git push -u origin main` — then update `hub-config.json` `gitRepo` field |
-| Library: user wants to opt in after initially declining | Add or update the library entry in `hub-config.json` `libraries` array with `contributeEnabled: true`, PAT, and gitUsername. No git remote needed. |
-| Library: GitHub API call fails with 401/403 | The library PAT is missing, expired, or lacks `Contents: write` permission — ask user to contact the library maintainer for a new scoped PAT |
-| Library: GitHub API call fails with 409 (conflict) | Another contribution may be in progress. Wait a moment and retry. If persistent, the `agent-contributions` branch may have diverged — get the latest HEAD and retry. |
-| Library: user asks to "share with the public library" | Run the library share flow from Phase 7 step 8, even outside of a normal research run |
-| Library: slug collision in the library | Slugs are suffixed with `gitUsername` (e.g., `chainsaw-comparison-jdoe`) — collisions should not occur |
-| Library: validation workflow fails after push | A GitHub Issue is created automatically with failure details. Fix the issues in the local project and re-push. |
-| Library: project already exists in library index.js | When reading the current index.js (step 3 of contribution flow), check if the slug already exists. If so, update the existing entry rather than adding a duplicate. |
-| Visibility: user asks to share a local/personal project | Upgrade to public first: "This will make the project public (synced + shared). Proceed?" Require explicit "yes" before upgrading and sharing. |
-| Visibility: user downgrades personal→local | Warn: "This project will be removed from your personal repo on next sync. Files remain locally and in git history." Move files to `src/local-projects/`, move metadata to `.local-config.json`. |
-| Visibility: existing projects missing `visibility` field | Treat missing `visibility` as `"personal"` (safe default). The agent should backfill the field when it next reads `hub-config.json`. |
-| Visibility: no `gitRepo` configured | All new projects default to `"local"`. User can still share to libraries (upgrades to public, but personal git sync won't work without a repo). |
-| Visibility: set-visibility API fails | Show error toast in hub UI. Visibility is not changed (rollback). User can retry or ask the agent to change it manually. |
-| Visibility: `src/local-projects/` directory doesn't exist yet | Create it on first local project (middleware uses `mkdirSync` with `recursive: true`). Hub App.jsx gracefully handles missing directory. |
-| Dedup: user's project appears in both My Research and Public Library | Dedup logic removes it from Public Library. If dedup fails (no gitUsername match, no title+createdAt match), show in both — better to duplicate than to hide. |
+
+For extension-specific edge cases, see the extension's `EXTENSION.md`.
+For library/contribution edge cases, see [hub-contribution.md](hub-contribution.md).
+For visibility edge cases, see [hub-visibility.md](hub-visibility.md#edge-cases).
+For collection edge cases, see [collections-architecture.md](collections-architecture.md#edge-cases).

@@ -1,0 +1,135 @@
+{
+  "includedSetup": false,
+  "skillVersion": "5.1",
+  "userPrompt": "research activities and sports that i can do in my fourties here in coquitlam and burnaby british columbia. include barrier to entry, costs, locations. how to get started at the location.",
+  "researchPlan": "TOPIC: Active Lifestyle Guide for Adults in Their 40s\nLOCATION: Coquitlam and Burnaby, BC\nACTIVITIES: 18 across 6 categories\nSECTIONS: Overview, Activity Explorer, Cost Comparison, Barrier To Entry, Location Guide, Health and Fitness, Getting Started, Sources",
+  "checkpointModified": false,
+  "model": "claude-sonnet-4-20250514",
+  "tokenUsage": null,
+  "searchesPerformed": 18,
+  "sourcesCount": 25,
+  "sectionsBuilt": 8,
+  "chartsBuilt": 6,
+  "filesGenerated": 10,
+  "productsCompared": null,
+  "dataPointsCollected": 350,
+  "phaseTiming": {
+    "environment": 1,
+    "enrich": 0,
+    "present": 2,
+    "interpret": 0.1,
+    "survey": 1.1,
+    "discover": 2.1,
+    "research": 0.6,
+    "analyze": 0.2,
+    "build": 11.1,
+    "buildBreakdown": {
+      "add-project": 0
+    },
+    "presentBreakdown": {
+      "validate": 0.6
+    }
+  },
+  "sourceDiversityScore": 0.72,
+  "glossary": {
+    "enabled": false,
+    "termsIdentified": 0,
+    "termsRendered": 0,
+    "termsByCategory": {
+      "acronym": 0,
+      "domainJargon": 0,
+      "technicalConcept": 0,
+      "tribalKnowledge": 0
+    }
+  },
+  "contentAnalysis": {
+    "fleschKincaidGrade": 8.5,
+    "fleschKincaidLabel": "8th-9th Grade",
+    "bloomsLevel": 5,
+    "bloomsLabel": "Evaluate",
+    "bloomsRange": "Understand -> Evaluate",
+    "totalWords": 6800,
+    "totalSentences": 420,
+    "readabilityNote": "Practical lifestyle guide with data-driven activity comparisons, cost analysis, and actionable getting-started instructions for local recreation"
+  },
+  "hoursSaved": {
+    "researchHours": 27.25,
+    "productionHours": {
+      "interactive-dashboard": 71.5,
+      "white-paper": 44.5,
+      "blog-post": 26,
+      "technical-doc": 31.5,
+      "presentation": 15,
+      "github-repo": 47.5
+    },
+    "totalHoursSaved": 98.75,
+    "equivalentLabel": "~2.5 weeks full-time"
+  },
+  "consumptionTime": {
+    "estimatedMinutes": 60,
+    "readingMinutes": 45.3,
+    "chartExplorationMinutes": 4.5,
+    "interactiveOverheadMinutes": 10.2,
+    "estimatedLabel": "~1 hr deep read"
+  },
+  "dataQualityDistribution": {
+    "t1": 5,
+    "t2": 220,
+    "t3": 95,
+    "t4": 30
+  },
+  "promptComplexity": {
+    "wordCount": 42,
+    "entityCount": 2,
+    "ambiguityScore": 0.5
+  },
+  "runStartedAt": "2026-03-16T21:39:26.103Z",
+  "runCompletedAt": "2026-03-16T21:56:45.871Z",
+  "durationMinutes": 17.3,
+  "timingSource": "verified",
+  "userWaitMinutes": 1.8,
+  "agentActiveMinutes": 15.5,
+  "checkpointWaitMinutes": 1.8,
+  "sessionTimeline": [
+    {
+      "type": "phase",
+      "phase": "interpret",
+      "minutes": 0.1
+    },
+    {
+      "type": "phase",
+      "phase": "survey",
+      "minutes": 1.1
+    },
+    {
+      "type": "phase",
+      "phase": "discover",
+      "minutes": 0.1
+    },
+    {
+      "type": "wait",
+      "context": "checkpoint",
+      "minutes": 1.8
+    },
+    {
+      "type": "phase",
+      "phase": "discover",
+      "minutes": 0.1
+    },
+    {
+      "type": "phase",
+      "phase": "research",
+      "minutes": 0.6
+    },
+    {
+      "type": "phase",
+      "phase": "analyze",
+      "minutes": 0.2
+    },
+    {
+      "type": "phase",
+      "phase": "build",
+      "minutes": 11.1
+    }
+  ]
+}

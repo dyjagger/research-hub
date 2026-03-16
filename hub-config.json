@@ -12,6 +12,17 @@
   },
   "projects": [
     {
+      "slug": "coquitlam-active-lifestyle",
+      "title": "Coquitlam & Burnaby Active Lifestyle Guide",
+      "subtitle": "18 Fun Activities & Sports for Adults in Their 40s",
+      "query": "research activities and sports that i can do in my fourties here in coquitlam and burnaby british columbia. include barrier to entry, costs, locations. how to get started at the location.",
+      "lens": "standard",
+      "icon": "Activity",
+      "accentColor": "teal",
+      "visibility": "personal",
+      "createdAt": "2026-03-16T21:44:53.641Z"
+    },
+    {
       "slug": "satisfactory-optimized-builds",
       "title": "Satisfactory Optimized Builds",
       "subtitle": "Deep Dive into Factory Optimization",
@@ -38,7 +49,7 @@
     {
       "slug": "bar-raptors-4p-guide",
       "title": "BAR Raptors 4P Guide",
-      "subtitle": "Optimized 4-Player Team Build vs Raptors \u2014 Hardest Difficulty",
+      "subtitle": "Optimized 4-Player Team Build vs Raptors — Hardest Difficulty",
       "query": "research beyond all reason, specifically for a 4 person player team going up against the AI raptors on the hardest difficulty setting, what is the optimized build for these four players to do",
       "lens": "standard",
       "icon": "Shield",
@@ -74,7 +85,7 @@
     {
       "slug": "japanese-learning-dashboard",
       "title": "Japanese Learning Dashboard",
-      "subtitle": "Beginner to Advanced \u2014 Grammar, Vocab, Kana, Verbs & Interactive Translator",
+      "subtitle": "Beginner to Advanced — Grammar, Vocab, Kana, Verbs & Interactive Translator",
       "query": "build me a japanese learning dashboard that goes from beginner to advanced, grammar, vocab, hiragana, katakana, romaji, structured courses, verb reference, and a sentence translator",
       "lens": "standard",
       "icon": "GraduationCap",

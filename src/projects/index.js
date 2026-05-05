@@ -96,6 +96,17 @@ export const projectRegistry = [
     createdAt: '2026-02-14T20:37:00Z',
     updatedAt: '2026-02-14T20:37:00Z',
   },
+  {
+    slug: 'japan-june-local-guide',
+    title: 'Japan June Local Guide',
+    subtitle: 'Tokyo & Kyoto — Ramen, Culture & Hidden Spots Away from Tourist Crowds',
+    query: 'list out some places to visit in japan tokyo and kyoto in june this year. we like ramen and want to experience japanese culture, but also dont want to get stuck in high tourist spots with a lot of other visiting foreigners.',
+    lens: 'standard',
+    icon: 'MapPin',
+    accentColor: 'rose',
+    visibility: 'personal',
+    createdAt: '2026-05-05T19:35:00Z',
+  },
 ];
 
 export const projectComponents = {
@@ -103,6 +114,7 @@ export const projectComponents = {
   'coquitlam-active-lifestyle': lazy(() => import('./coquitlam-active-lifestyle/App')),
   'global-travel-guide': lazy(() => import('./global-travel-guide/App')),
   'japan-dmc-luxury-travel': lazy(() => import('./japan-dmc-luxury-travel/App')),
+  'japan-june-local-guide': lazy(() => import('./japan-june-local-guide/App')),
   'japan-vegan-gf-guide': lazy(() => import('./japan-vegan-gf-guide/App')),
   'japanese-learning-dashboard': lazy(() => import('./japanese-learning-dashboard/App')),
   'jeep-rubicon-overlanding': lazy(() => import('./jeep-rubicon-overlanding/App')),

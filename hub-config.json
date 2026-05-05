@@ -105,6 +105,17 @@
       "visibility": "personal",
       "createdAt": "2026-02-14T20:37:00Z",
       "updatedAt": "2026-02-14T20:37:00Z"
+    },
+    {
+      "slug": "japan-june-local-guide",
+      "title": "Japan June Local Guide",
+      "subtitle": "Tokyo & Kyoto — Ramen, Culture & Hidden Spots Away from Tourist Crowds",
+      "query": "list out some places to visit in japan tokyo and kyoto in june this year. we like ramen and want to experience japanese culture, but also dont want to get stuck in high tourist spots with a lot of other visiting foreigners.",
+      "lens": "standard",
+      "icon": "MapPin",
+      "accentColor": "rose",
+      "visibility": "personal",
+      "createdAt": "2026-05-05T19:35:00Z"
     }
   ]
 }

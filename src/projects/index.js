@@ -107,10 +107,23 @@ export const projectRegistry = [
     visibility: 'personal',
     createdAt: '2026-05-05T19:35:00Z',
   },
+  {
+    slug: 'child-skateboard-buyers-guide',
+    title: 'Child Skateboard Buyer Guide',
+    subtitle: 'Vancouver-ready skateboard shortlist for a girl with shoe size 2',
+    query: 'use .codeium/windsurf/skills/research-visualizer and create a personal hub page (don\'t import to the public research hub), host it locally here on this computer on one of the ports, to build a buyers guide for a child (girl) with a shoe size of 2 who wants a skateboard. they are based out of vancouver canada but are willing to buy online. this guide will help them choose the perfect skateboard for her to ride around in.',
+    lens: 'product',
+    icon: 'Heart',
+    accentColor: 'cyan',
+    visibility: 'personal',
+    createdAt: '2026-07-06T00:00:00Z',
+    updatedAt: '2026-07-06T00:00:00Z',
+  },
 ];
 
 export const projectComponents = {
   'bar-raptors-4p-guide': lazy(() => import('./bar-raptors-4p-guide/App')),
+  'child-skateboard-buyers-guide': lazy(() => import('./child-skateboard-buyers-guide/App')),
   'coquitlam-active-lifestyle': lazy(() => import('./coquitlam-active-lifestyle/App')),
   'global-travel-guide': lazy(() => import('./global-travel-guide/App')),
   'japan-dmc-luxury-travel': lazy(() => import('./japan-dmc-luxury-travel/App')),

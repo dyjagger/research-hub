@@ -1,7 +1,7 @@
 import React, { useState, Suspense } from 'react';
 import {
   Search, ChevronLeft, ChevronRight, Home, Menu, X,
-  Microscope, FlaskConical,
+  Microscope, FlaskConical, Heart,
 } from 'lucide-react';
 import { projectRegistry, projectComponents } from './projects';
 import HubHome from './components/HubHome';
@@ -23,6 +23,7 @@ function ProjectIcon({ iconName, className }) {
         <path d="m14 12-8.5 8.5a2.12 2.12 0 1 1-3-3L11 9"/><path d="M15 13 9 7l4-4 6 6h3a8 8 0 0 1-7 7z"/>
       </svg>
     ),
+    Heart,
   };
   const Icon = icons[iconName] || FlaskConical;
   return <Icon className={className} />;
